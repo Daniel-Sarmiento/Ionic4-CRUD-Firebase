@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+    <form [formGroup]="formPerfil">
+        <ion-item>
+            <ion-input type="text" formControlName="name" placeholder="Nombre"> </ion-input>
+            <span *ngIf="formPerfil.get('name').touched && formPerfil.get('name').hasError('required')">Required</span>
+        </ion-item>
+        
+        <ion-item>
+            <ion-input type="email" formControlName="email" placeholder="Correo"></ion-input>
+            <span *ngIf="formPerfil.get('email').touched && formPerfil.get('email').hasError('pattern')">Correo Invalido</span>
+        </ion-item>
+        
+        <ion-item>
+            <ion-input type="text" formControlName="age" placeholder="Edad"> </ion-input>
+        </ion-item>
+
+        <ion-button type="button" (click)="guardar()" [disabled]="formPerfil.invalid">Guardar</ion-button>
+    </form>
+
+    <ion-button (click)="regresar()">Regresar</ion-button>
+    
+</ion-content>
