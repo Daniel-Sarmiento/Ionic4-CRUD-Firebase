@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase';
+import { Push, PushOptions, PushObject } from '@ionic-native/push/ngx';
 
 @Component({
   selector: 'app-home',
@@ -11,16 +12,17 @@ import * as firebase from 'firebase';
 export class HomePage {
   
   pokemons:any[]
-
+  pushObject:any;
   //ref = firebase.database().ref('pokemon-b1b27')
   ref = firebase.database().ref()
 
 
   constructor(private alert : AlertController, 
     private router: Router,
-    private alertController:AlertController
+    private alertController:AlertController,
+    private push: Push
     ){
-    
+
     //listar pokemones
     this.ref.on('value', response => {
       let datos = snapshotToArray(response);
@@ -54,6 +56,21 @@ export class HomePage {
   }
   
   async add(){
+
+    const options: PushOptions = {
+      android: {
+        senderID: '831981256313'
+      },
+      ios: {
+          alert: 'true',
+          badge: true,
+          sound: 'false'
+      }
+   }
+   
+   const pushObject: PushObject = this.push.init(options);
+   
+
     const alert = await this.alertController.create({
       header: 'Pokemon',
       inputs:[
@@ -84,6 +101,10 @@ export class HomePage {
     })
 
     await alert.present();
+    this.pushObject.on('notification', (data) => {
+      console.log("Imprimiendo notificación de registro");
+      
+    })
   }
 
   async edit(pokemon:any){
