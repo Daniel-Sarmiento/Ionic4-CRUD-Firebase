@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase';
+import { FcmService } from '../fcm.service';
 
 
 @Component({
@@ -19,7 +20,8 @@ export class HomePage {
 
   constructor(private alert : AlertController, 
     private router: Router,
-    private alertController:AlertController
+    private alertController:AlertController,
+    private fcmService: FcmService
     ){
     
     //listar pokemones
@@ -79,6 +81,9 @@ export class HomePage {
             console.log('Ok', data)
             let insert = this.ref.push();
             insert.set(data);
+            this.fcmService.sendNotification().subscribe( response => {
+              console.log("Notificación enviada: " + response);
+            })
           }
         }
       ]

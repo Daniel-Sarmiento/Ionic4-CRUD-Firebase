@@ -7,6 +7,7 @@ import * as firebase from 'firebase';
 import { FCM } from '@ionic-native/fcm/ngx';
 
 import { Push, PushObject, PushOptions } from '@ionic-native/push/ngx';
+import { FcmService } from './fcm.service';
 var config = {
   apiKey: "AIzaSyD8ji6B5BfBa7I6mQ5KGMOfruu7dyBTyV0",
   authDomain: "tallerfirebase-6a4ab.firebaseapp.com",
@@ -27,6 +28,7 @@ export class AppComponent {
     private statusBar: StatusBar,
     private push: Push,
     private fcm: FCM,
+    private fcmService: FcmService
   ) {
     this.initializeApp();
   }
@@ -39,12 +41,11 @@ export class AppComponent {
     firebase.initializeApp(config);
 
     this.notificacion();
-    this.fcm.subscribeToTopic('pokemon');
+    //this.fcm.subscribeToTopic('pokemon');
 
   }
 
   notificacion() {
-
 
     const options: PushOptions = {
       android: {
@@ -62,7 +63,14 @@ export class AppComponent {
 
     pushObject.on('notification').subscribe((notification: any) => console.log('Received a notification', notification));
 
-    pushObject.on('registration').subscribe((registration: any) => console.log('Device registered', registration));
+    pushObject.on('registration').subscribe((registration: any) => 
+    {
+      this.fcmService.subscribeTopic(registration.registrationId).subscribe( response => {
+        console.log("Suscrito: "  +response);
+      })
+      console.log('Device registered', registration)
+    }
+    );
 
     pushObject.on('error').subscribe(error => console.error('Error with Push plugin', error));
 
