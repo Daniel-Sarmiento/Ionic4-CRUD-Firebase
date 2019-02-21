@@ -2,12 +2,9 @@ import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase';
-<<<<<<< HEAD
 import { FcmService } from '../fcm.service';
+import { Storage } from '@ionic/storage';
 
-=======
-import { Push, PushOptions, PushObject } from '@ionic-native/push/ngx';
->>>>>>> 8b54426734aabcdda6eded01d538640e7f002f32
 
 @Component({
   selector: 'app-home',
@@ -15,19 +12,20 @@ import { Push, PushOptions, PushObject } from '@ionic-native/push/ngx';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-  
-  pokemons:any[]
-  pushObject:any;
+
+  pokemons: any[]
+  pushObject: any;
+  keyRegistration:any;
   //ref = firebase.database().ref('pokemon-b1b27')
   ref = firebase.database().ref()
 
 
-  constructor(private alert : AlertController, 
+  constructor(private alert: AlertController,
     private router: Router,
-    private alertController:AlertController,
-    private fcmService: FcmService
-    ){
-
+    private alertController: AlertController,
+    private fcmService: FcmService,
+    private storage: Storage
+  ) {
     //listar pokemones
     this.ref.on('value', response => {
       let datos = snapshotToArray(response);
@@ -36,10 +34,15 @@ export class HomePage {
       console.log(datos);
     });
 
+    this.storage.get('keyRegistration').then((val) => {
+      this.keyRegistration = val;
+      console.log('(1)Your keyRegistration is', this.keyRegistration);
+    });
+
     /* //Insertar pokemones
     let insert = this.ref.push();
     insert.set({name: 'Pikachu2'}); */
-    
+
     /* //Obtener pokemon
     firebase.database().ref('-LYbX8aWdi_QYPaThBLt').on('value', response => {
       let dato =  snapshotToObject(response);
@@ -52,26 +55,26 @@ export class HomePage {
 
     //actualizar
     firebase.database().ref('-LYbTtEnXmJgwAi1S5qv').update(data); */
-    
+
   }
 
-  delete(pokemon:any){
+  delete(pokemon: any) {
     console.log(pokemon);
     firebase.database().ref(pokemon.key).remove();
   }
-  
-  async add(){
+
+  async add() {
 
     const alert = await this.alertController.create({
       header: 'Pokemon',
-      inputs:[
+      inputs: [
         {
           name: 'name',
           type: 'text',
           placeholder: 'Nombre'
         }
       ],
-      buttons:[
+      buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
@@ -86,7 +89,8 @@ export class HomePage {
             console.log('Ok', data)
             let insert = this.ref.push();
             insert.set(data);
-            this.fcmService.sendNotification().subscribe( response => {
+            console.log('(2)Your keyRegistration is',this.keyRegistration);
+            this.fcmService.sendNotification(this.keyRegistration).subscribe(response => {
               console.log("Notificación enviada: " + response);
             })
           }
@@ -97,14 +101,14 @@ export class HomePage {
     await alert.present();
     this.pushObject.on('notification', (data) => {
       console.log("Imprimiendo notificación de registro");
-      
+
     })
   }
 
-  async edit(pokemon:any){
+  async edit(pokemon: any) {
     const alert = await this.alertController.create({
       header: 'Pokemon',
-      inputs:[
+      inputs: [
         {
           name: 'name',
           type: 'text',
@@ -112,7 +116,7 @@ export class HomePage {
           value: pokemon.name
         }
       ],
-      buttons:[
+      buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
@@ -144,7 +148,7 @@ export class HomePage {
     await alert.present();
   }
 
-  goUrl() : void{
+  goUrl(): void {
     this.router.navigateByUrl('/perfil')
   }
 

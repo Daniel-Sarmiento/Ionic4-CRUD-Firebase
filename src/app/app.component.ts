@@ -8,6 +8,10 @@ import { FCM } from '@ionic-native/fcm/ngx';
 
 import { Push, PushObject, PushOptions } from '@ionic-native/push/ngx';
 import { FcmService } from './fcm.service';
+import { Storage } from '@ionic/storage';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { AlertController } from '@ionic/angular';
+
 var config = {
   apiKey: "AIzaSyD8ji6B5BfBa7I6mQ5KGMOfruu7dyBTyV0",
   authDomain: "tallerfirebase-6a4ab.firebaseapp.com",
@@ -22,13 +26,20 @@ var config = {
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
+
+  myKeyRegistration:string = "";
+
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private push: Push,
     private fcm: FCM,
-    private fcmService: FcmService
+    private fcmService: FcmService,
+    private storage: Storage,
+    private localNotifications: LocalNotifications,
+    private alertController: AlertController
+
   ) {
     this.initializeApp();
   }
@@ -43,6 +54,16 @@ export class AppComponent {
     this.notificacion();
     //this.fcm.subscribeToTopic('pokemon');
 
+  }
+
+  async presentAlert() {
+    const alert = await this.alertController.create({
+      header: 'Nuevo pokemon',
+      message: 'Han creado un nuevo pokemon',
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 
   notificacion() {
@@ -60,13 +81,31 @@ export class AppComponent {
 
     const pushObject: PushObject = this.push.init(options);
 
+    pushObject.on('notification').subscribe( (notification: any) => {
+      let idSender = String(notification.additionalData.idSender);
+      let myKeyRegistration = String(this.myKeyRegistration);
 
-    pushObject.on('notification').subscribe((notification: any) => console.log('Received a notification', notification));
+      if( idSender == myKeyRegistration ){
+        console.log('Received a notification of me', notification);
+      }
+      else{
+        console.log('Received a notification of other device', notification);
+        this.presentAlert();
+        this.localNotifications.schedule({
+          id: 1,
+          text: 'Pokemon creado',
+          data: { msg: "Se ha creado un nuevo pokemon" }
+        }); 
+      }
+      }
+    );
 
     pushObject.on('registration').subscribe((registration: any) => 
     {
       this.fcmService.subscribeTopic(registration.registrationId).subscribe( response => {
-        console.log("Suscrito: "  +response);
+        this.myKeyRegistration = registration.registrationId;
+        this.storage.set('keyRegistration', this.myKeyRegistration);
+        console.log("Suscrito: "  + this.myKeyRegistration);
       })
       console.log('Device registered', registration)
     }

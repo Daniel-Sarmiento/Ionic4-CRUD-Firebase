@@ -12,6 +12,7 @@ import { Push } from '@ionic-native/push/ngx';
 import { FCM } from '@ionic-native/fcm/ngx';
 import { FcmService } from './fcm.service';
 import { HttpClientModule } from '@angular/common/http';
+import { IonicStorageModule } from '@ionic/storage';
 
 @NgModule({ 
   declarations: [AppComponent],
@@ -20,6 +21,7 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule, IonicModule.forRoot(), 
     AppRoutingModule,
     HttpClientModule,
+    IonicStorageModule.forRoot(),
   ],
   providers: [
     StatusBar,

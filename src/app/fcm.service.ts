@@ -36,8 +36,8 @@ export class FcmService {
     return this.http.post(this.URLSUBSCRIBETOPIC, data, headers)
   }
 
-  sendNotification(): Observable<any> {
-
+  sendNotification(idSender): Observable<any> {
+    console.log('(3)the idSender is',idSender);
     const headers = {
       headers: new HttpHeaders({
         'Content-Type':  'application/json',
@@ -48,7 +48,8 @@ export class FcmService {
     const data = {
       data: {
         title: "Pokemon creado",
-        message: "Se ha creado un nuevo pokemon"
+        message: "Se ha creado un nuevo pokemon",
+        idSender: idSender
       },
       to: "/topics/pokemon"
     }
