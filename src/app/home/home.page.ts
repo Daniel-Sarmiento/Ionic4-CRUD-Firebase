@@ -2,8 +2,12 @@ import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase';
+<<<<<<< HEAD
 import { FcmService } from '../fcm.service';
 
+=======
+import { Push, PushOptions, PushObject } from '@ionic-native/push/ngx';
+>>>>>>> 8b54426734aabcdda6eded01d538640e7f002f32
 
 @Component({
   selector: 'app-home',
@@ -13,7 +17,7 @@ import { FcmService } from '../fcm.service';
 export class HomePage {
   
   pokemons:any[]
-
+  pushObject:any;
   //ref = firebase.database().ref('pokemon-b1b27')
   ref = firebase.database().ref()
 
@@ -23,7 +27,7 @@ export class HomePage {
     private alertController:AlertController,
     private fcmService: FcmService
     ){
-    
+
     //listar pokemones
     this.ref.on('value', response => {
       let datos = snapshotToArray(response);
@@ -57,6 +61,7 @@ export class HomePage {
   }
   
   async add(){
+
     const alert = await this.alertController.create({
       header: 'Pokemon',
       inputs:[
@@ -90,6 +95,10 @@ export class HomePage {
     })
 
     await alert.present();
+    this.pushObject.on('notification', (data) => {
+      console.log("Imprimiendo notificación de registro");
+      
+    })
   }
 
   async edit(pokemon:any){
